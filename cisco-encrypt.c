@@ -109,16 +109,13 @@ int c_encrypt(const char *pw, int pwlen, char **resp, int *reslenp) {
     return 0;
 }
 
-int main(int argc, char *argv[]) {
-    int i, ret = 0, pwlen, hashlen;
-    char *hash;
+int encode_passwords(int count, char **passwords) {
+    int ret = 0;
+    for (int i = 0; i < count; i++) {
+        int hashlen, pwlen = strlen(passwords[i])+1;
+        char *hash;
 
-    gcry_check_version(NULL);
-
-    for (i = 1; i < argc; i++) {
-        pwlen = strlen(argv[i])+1;
-
-        ret = c_encrypt(argv[i], pwlen, &hash, &hashlen);
+        ret = c_encrypt(passwords[i], pwlen, &hash, &hashlen);
         if(ret != 0) {
             perror("encoding failed");
             continue;
@@ -127,6 +124,34 @@ int main(int argc, char *argv[]) {
         printhex((unsigned char *)hash, hashlen);
         free(hash);
     }
-    exit(ret != 0);
+    return ret;
+}
+
+int main(int argc, char *argv[]) {
+    int ret;
+
+    gcry_check_version(NULL);
+
+    if (argc > 1) {
+        ret = encode_passwords(argc - 1, &argv[1]);
+    } else {
+        char *pw = NULL;
+        size_t buflen = 0;
+        ssize_t pwlen = getline(&pw, &buflen, stdin);
+        if (pwlen < 0) {
+            perror("failed to read password from stdin");
+            return errno;
+        } else if (pwlen < 2) {
+            fprintf(stderr, "No password provided");
+            free(pw);
+            return EINVAL;
+        }
+        // Replace newline with null char
+        pw[pwlen - 1] = '\0';
+        ret = encode_passwords(1, &pw);
+        free(pw);
+    }
+
+    return ret;
 }
 
