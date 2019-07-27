@@ -8,12 +8,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -49,7 +49,7 @@ int c_encrypt(const char *pw, int pwlen, char **resp, int *reslenp) {
 
     gcry_cipher_hd_t ctx;
     time_t rawtime;
- 
+
     time(&rawtime);
     tmp = ctime(&rawtime);
 
@@ -94,7 +94,7 @@ int c_encrypt(const char *pw, int pwlen, char **resp, int *reslenp) {
     /* h4 = SHA1 of encrypted password */
     gcry_md_hash_buffer(GCRY_MD_SHA1, h4, enc, enclen);
 
-    /* hash length */    
+    /* hash length */
     *reslenp = enclen+40;
     res = malloc(*reslenp);
 
@@ -102,7 +102,7 @@ int c_encrypt(const char *pw, int pwlen, char **resp, int *reslenp) {
     memcpy(res, h1, 20);
     memcpy(res+20, h4, 20);
     memcpy(res+40, enc, enclen);
-    
+
     *resp = res;
 
     free(enc);
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
     for (i = 1; i < argc; i++) {
         pwlen = strlen(argv[i])+1;
-        
+
         ret = c_encrypt(argv[i], pwlen, &hash, &hashlen);
         if(ret != 0) {
             perror("encodig failed");
