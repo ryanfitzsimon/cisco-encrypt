@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
 
         ret = c_encrypt(argv[i], pwlen, &hash, &hashlen);
         if(ret != 0) {
-            perror("encodig failed");
+            perror("encoding failed");
             continue;
         }
 
